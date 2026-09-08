@@ -46,6 +46,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.sis.geometry.DirectPosition2D;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.CoordinateXY;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -683,6 +684,23 @@ public class GeometryWrapper implements Serializable {
         Geometry xyGeo = this.xyGeometry.convexHull();
         Geometry parsingGeo = GeometryReverse.check(xyGeo, srsInfo);
         return new GeometryWrapper(parsingGeo, xyGeo, srsInfo.getSrsURI(), geometryDatatypeURI, dimensionInfo);
+    }
+
+    /**
+     * Returns the planar, two-dimensional centroid in the source SRS and datatype.
+     * Uses JTS area weighting for polygons, length weighting for lines, and the
+     * mean of points. Collections use their highest-dimensional nonempty members.
+     * Z and M are not included in the result; empty input produces an empty Point.
+     * Geographic coordinates are treated as planar coordinates, without projection.
+     */
+    public GeometryWrapper centroid() {
+        Point centroid = xyGeometry.getCentroid();
+        GeometryFactory factory = CustomGeometryFactory.theInstance();
+        Point xyCentroid = centroid.isEmpty()
+            ? factory.createPoint(new CustomCoordinateSequence(CoordinateSequenceDimensions.XY))
+            : factory.createPoint(new CoordinateXY(centroid.getX(), centroid.getY()));
+        Geometry parsingCentroid = GeometryReverse.check(xyCentroid, srsInfo);
+        return new GeometryWrapper(parsingCentroid, xyCentroid, getSrsURI(), geometryDatatypeURI, DimensionInfo.XY_POINT);
     }
 
     /**
