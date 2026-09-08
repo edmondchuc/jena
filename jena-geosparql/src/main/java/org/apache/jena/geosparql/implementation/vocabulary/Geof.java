@@ -75,6 +75,11 @@ public interface Geof {
     public static final String CONVEXHULL_NAME = GEOF_URI + "convexHull";
     public static final String GETSRID_NAME = GEOF_URI + "getSRID";
 
+    public static final String LENGTH_NAME = GEOF_URI + "length";
+    public static final String PERIMETER_NAME = GEOF_URI + "perimeter";
+    public static final String METRIC_LENGTH_NAME = GEOF_URI + "metricLength";
+    public static final String METRIC_PERIMETER_NAME = GEOF_URI + "metricPerimeter";
+
     // Geometry property function symbols:
     public static final String GEOMETRY_TYPE = GEOF_URI + "geometryType";
     public static final String IS_3D = GEOF_URI + "is3D";
