@@ -74,6 +74,9 @@ public interface Geof {
     public static final String CONVEXHULL_NAME = GEOF_URI + "convexHull";
     public static final String GETSRID_NAME = GEOF_URI + "getSRID";
 
+    public static final String AREA_NAME = GEOF_URI + "area";
+    public static final String METRIC_AREA_NAME = GEOF_URI + "metricArea";
+
     //Geometry Property function symbols:
     //N.B. These functions are not part of the GeoSPARQL standard but have been included for convenience using GeometryLiterals.
     public static final String DIMENSION = GEOF_URI + "dimension";
