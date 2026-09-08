@@ -685,6 +685,42 @@ public class GeometryWrapper implements Serializable {
         return new GeometryWrapper(parsingGeo, xyGeo, srsInfo.getSrsURI(), geometryDatatypeURI, dimensionInfo);
     }
 
+    /** Returns the total line and ring length in metres. */
+    public double length() {
+        return length(Unit_URI.METRE_URL);
+    }
+
+    /**
+     * Returns the total line and ring length in the requested linear units.
+     * Points contribute zero; polygons include exterior and interior rings;
+     * collections sum all members. Z and M are ignored. Geographic coordinates
+     * use spherical great-circle segment lengths; projected coordinates use
+     * planar lengths. Unit conversion is applied once to the total.
+     *
+     * @throws org.apache.jena.geosparql.implementation.registry.UnitsURIException if the unit URI is unknown.
+     * @throws UnitsConversionException if the units are incompatible.
+     */
+    public double length(String unitsURI) {
+        return GeometryLength.calculate(this, unitsURI);
+    }
+
+    /** Returns the perimeter in metres, using the same component rules as length. */
+    public double perimeter() {
+        return perimeter(Unit_URI.METRE_URL);
+    }
+
+    /**
+     * Returns the perimeter in the requested linear units. Polygon boundaries
+     * include holes; non-areal members contribute their length. Collections sum
+     * their members, so this is numerically equal to {@link #length(String)}.
+     *
+     * @throws org.apache.jena.geosparql.implementation.registry.UnitsURIException if the unit URI is unknown.
+     * @throws UnitsConversionException if the units are incompatible.
+     */
+    public double perimeter(String unitsURI) {
+        return length(unitsURI);
+    }
+
     /**
      *
      * @param targetGeometry

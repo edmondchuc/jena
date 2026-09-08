@@ -29,6 +29,10 @@ import org.apache.jena.geosparql.geof.nontopological.filter_functions.DistanceFF
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.EnvelopFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.GetSRIDFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.IntersectionFF;
+import org.apache.jena.geosparql.geof.nontopological.filter_functions.LengthFF;
+import org.apache.jena.geosparql.geof.nontopological.filter_functions.MetricLengthFF;
+import org.apache.jena.geosparql.geof.nontopological.filter_functions.MetricPerimeterFF;
+import org.apache.jena.geosparql.geof.nontopological.filter_functions.PerimeterFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.SymmetricDifferenceFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.UnionFF;
 import org.apache.jena.geosparql.implementation.vocabulary.Geof;
@@ -60,6 +64,10 @@ public class NonTopological {
         registry.put(Geof.INTERSECTION_NAME, IntersectionFF.class);
         registry.put(Geof.SYMDIFFERENCE_NAME, SymmetricDifferenceFF.class);
         registry.put(Geof.UNION_NAME, UnionFF.class);
+        registry.put(Geof.LENGTH_NAME, LengthFF.class);
+        registry.put(Geof.PERIMETER_NAME, PerimeterFF.class);
+        registry.put(Geof.METRIC_LENGTH_NAME, MetricLengthFF.class);
+        registry.put(Geof.METRIC_PERIMETER_NAME, MetricPerimeterFF.class);
         registry.put(Geof.AS_GEOJSON, AsGeoJSONFF.class);
     }
 }
