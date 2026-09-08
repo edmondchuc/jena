@@ -20,6 +20,7 @@
  */
 package org.apache.jena.geosparql.implementation.parsers.wkt;
 
+import org.apache.jena.geosparql.implementation.DimensionInfo;
 import org.apache.jena.geosparql.implementation.GeometryWrapper;
 import org.apache.jena.geosparql.implementation.SRSInfo;
 import org.apache.jena.geosparql.implementation.jts.CoordinateSequenceDimensions;
@@ -132,9 +133,7 @@ public class WKTWriter {
 
         StringBuilder sb = new StringBuilder(geometryType);
 
-        if (!wktText.equals(" EMPTY")) {
-            sb.append(dimensionString);
-        }
+        sb.append(dimensionString);
 
         sb.append(wktText);
 
@@ -147,12 +146,10 @@ public class WKTWriter {
 
         if (isIncludeGeometryType) {
             sb.append("POLYGON");
+            sb.append(dimensionString);
         }
 
         if (!polygon.isEmpty()) {
-            if (isIncludeGeometryType) {
-                sb.append(dimensionString);
-            }
             sb.append("(");
 
             //Find exterior shell
@@ -180,10 +177,10 @@ public class WKTWriter {
     private static String buildMultiPoint(final MultiPoint multiPoint, final String dimensionString) {
 
         StringBuilder sb = new StringBuilder("MULTIPOINT");
+        sb.append(dimensionString);
 
         if (!multiPoint.isEmpty()) {
 
-            sb.append(dimensionString);
             sb.append("(");
             //Find first point
             Point point = (Point) multiPoint.getGeometryN(0);
@@ -209,9 +206,9 @@ public class WKTWriter {
     private static String buildMultiLineString(final MultiLineString multiLineString, final String dimensionString) {
 
         StringBuilder sb = new StringBuilder("MULTILINESTRING");
+        sb.append(dimensionString);
 
         if (!multiLineString.isEmpty()) {
-            sb.append(dimensionString);
             sb.append("(");
 
             //Find first linestring
@@ -238,9 +235,9 @@ public class WKTWriter {
     private static String buildMultiPolygon(final MultiPolygon multiPolygon, final String dimensionString) {
 
         StringBuilder sb = new StringBuilder("MULTIPOLYGON");
+        sb.append(dimensionString);
 
         if (!multiPolygon.isEmpty()) {
-            sb.append(dimensionString);
             sb.append("(");
 
             //Find first polygon
@@ -266,21 +263,20 @@ public class WKTWriter {
     private static String buildGeometryCollection(final GeometryCollection geometryCollection, final CoordinateSequenceDimensions dimensions) {
 
         StringBuilder sb = new StringBuilder("GEOMETRYCOLLECTION");
+        sb.append(CoordinateSequenceDimensions.convertDimensions(dimensions));
 
-        if (!geometryCollection.isEmpty()) {
-            String dimensionString = CoordinateSequenceDimensions.convertDimensions(dimensions);
-            sb.append(dimensionString);
+        if (geometryCollection.getNumGeometries() > 0) {
 
             Geometry geometry = geometryCollection.getGeometryN(0);
 
             sb.append("(");
-            sb.append(expand(geometry, dimensions));
+            sb.append(expand(geometry, DimensionInfo.find(geometry, dimensions).getDimensions()));
 
             int geomCount = geometryCollection.getNumGeometries();
             for (int i = 1; i < geomCount; i++) {
                 sb.append(", ");
                 geometry = geometryCollection.getGeometryN(i);
-                sb.append(expand(geometry, dimensions));
+                sb.append(expand(geometry, DimensionInfo.find(geometry, dimensions).getDimensions()));
             }
             sb.append(")");
         } else {

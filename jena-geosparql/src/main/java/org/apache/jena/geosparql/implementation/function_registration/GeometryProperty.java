@@ -32,6 +32,7 @@ import org.apache.jena.geosparql.geof.topological.filter_functions.geometry_prop
 import org.apache.jena.geosparql.geof.topological.filter_functions.geometry_property.IsSimpleFF;
 import org.apache.jena.geosparql.geof.topological.filter_functions.geometry_property.IsValidFF;
 import org.apache.jena.geosparql.geof.topological.filter_functions.geometry_property.SpatialDimensionFF;
+import org.apache.jena.geosparql.geof.topological.filter_functions.geometry_property.GeometryNFF;
 import org.apache.jena.geosparql.implementation.vocabulary.Geo;
 import org.apache.jena.geosparql.implementation.vocabulary.Geof;
 import org.apache.jena.sparql.function.FunctionRegistry;
@@ -59,9 +60,8 @@ public class GeometryProperty {
     }
 
     /**
-     * This method loads all the Geometry property filter functions.<br>
-     * N.B. These functions are not part of the GeoSPARQL standard but have been
-     * included for convenience using GeometryLiterals.
+     * This method loads geometry property filter functions, including
+     * GeoSPARQL 1.1 member access.
      *
      * @param registry - the FunctionRegistry to be used
      */
@@ -73,6 +73,7 @@ public class GeometryProperty {
         registry.put(Geof.IS_SIMPLE, IsSimpleFF.class);
         registry.put(Geof.IS_EMPTY, IsEmptyFF.class);
         registry.put(Geof.IS_VALID, IsValidFF.class);
+        registry.put(Geof.GEOMETRY_N, GeometryNFF.class);
     }
 
 }

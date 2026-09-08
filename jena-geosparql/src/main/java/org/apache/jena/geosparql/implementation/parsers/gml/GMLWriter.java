@@ -256,7 +256,7 @@ public class GMLWriter {
         Element gmlRoot = new Element("MultiGeometry", GML_NAMESPACE);
         gmlRoot.setAttribute("srsName", srsName);
 
-        if (!geometryCollection.isEmpty()) {
+        if (geometryCollection.getNumGeometries() > 0) {
 
             int geomCount = geometryCollection.getNumGeometries();
             for (int i = 0; i < geomCount; i++) {
