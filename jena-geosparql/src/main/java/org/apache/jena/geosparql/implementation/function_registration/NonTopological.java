@@ -29,6 +29,7 @@ import org.apache.jena.geosparql.geof.nontopological.filter_functions.DistanceFF
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.EnvelopFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.GetSRIDFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.IntersectionFF;
+import org.apache.jena.geosparql.geof.nontopological.filter_functions.MetricDistanceFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.SymmetricDifferenceFF;
 import org.apache.jena.geosparql.geof.nontopological.filter_functions.UnionFF;
 import org.apache.jena.geosparql.implementation.vocabulary.Geof;
@@ -55,6 +56,7 @@ public class NonTopological {
         registry.put(Geof.CONVEXHULL_NAME, ConvexHullFF.class);
         registry.put(Geof.DIFFERENCE_NAME, DifferenceFF.class);
         registry.put(Geof.DISTANCE_NAME, DistanceFF.class);
+        registry.put(Geof.METRIC_DISTANCE_NAME, MetricDistanceFF.class);
         registry.put(Geof.ENVELOPE_NAME, EnvelopFF.class);
         registry.put(Geof.GETSRID_NAME, GetSRIDFF.class);
         registry.put(Geof.INTERSECTION_NAME, IntersectionFF.class);
