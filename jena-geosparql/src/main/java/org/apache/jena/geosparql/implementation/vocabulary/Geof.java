@@ -64,6 +64,7 @@ public interface Geof {
 
     //Non-Topological function names:
     public static final String DISTANCE_NAME = GEOF_URI + "distance";
+    public static final String METRIC_DISTANCE_NAME = GEOF_URI + "metricDistance";
     public static final String SYMDIFFERENCE_NAME = GEOF_URI + "symDifference";
     public static final String UNION_NAME = GEOF_URI + "union";
     public static final String INTERSECTION_NAME = GEOF_URI + "intersection";
