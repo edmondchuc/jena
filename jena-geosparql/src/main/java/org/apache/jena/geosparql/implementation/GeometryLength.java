@@ -35,7 +35,9 @@ final class GeometryLength {
             throw new UnitsConversionException("Linear measurement requires linear target units.");
         }
         if (geometry.getSrsInfo().isGeographic()) {
-            return UnitsOfMeasure.conversion(greatCircleLength(geometry.getXYGeometry()),
+            double degreesPerUnit = geometry.getUnitsOfMeasure().getUnit()
+                    .getConverterTo(UnitsOfMeasure.DEGREE_UNITS.getUnit()).convert(1.0);
+            return UnitsOfMeasure.conversion(greatCircleLength(geometry.getXYGeometry(), degreesPerUnit),
                     UnitsOfMeasure.METRE_UNITS, targetUnits);
         }
         double sourceLength = geometry.getXYGeometry().getLength();
@@ -43,21 +45,26 @@ final class GeometryLength {
                 geometry.getUnitsOfMeasure(), targetUnits);
     }
 
-    private static double greatCircleLength(Geometry geometry) {
-        GreatCircleLengthFilter filter = new GreatCircleLengthFilter();
+    private static double greatCircleLength(Geometry geometry, double degreesPerUnit) {
+        GreatCircleLengthFilter filter = new GreatCircleLengthFilter(degreesPerUnit);
         geometry.apply(filter);
         return filter.length;
     }
 
     private static final class GreatCircleLengthFilter implements CoordinateSequenceFilter {
+        private final double degreesPerUnit;
         private double length;
+
+        private GreatCircleLengthFilter(double degreesPerUnit) {
+            this.degreesPerUnit = degreesPerUnit;
+        }
 
         @Override
         public void filter(CoordinateSequence sequence, int index) {
             if (index > 0) {
                 length += GreatCircleDistance.haversineFormula(
-                        sequence.getY(index - 1), sequence.getX(index - 1),
-                        sequence.getY(index), sequence.getX(index));
+                        sequence.getY(index - 1) * degreesPerUnit, sequence.getX(index - 1) * degreesPerUnit,
+                        sequence.getY(index) * degreesPerUnit, sequence.getX(index) * degreesPerUnit);
             }
         }
 
