@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
+import org.apache.jena.geosparql.implementation.UnitsOfMeasure;
 import org.apache.jena.geosparql.implementation.datatype.WKTDatatype;
 import org.apache.jena.geosparql.implementation.vocabulary.Unit_URI;
 import org.apache.jena.graph.Node;
@@ -60,6 +61,13 @@ public class MetricDistanceFFTest {
     @Test
     public void geographicDistanceReturnsMetres() {
         assertDistance("POINT (11.41 53.63)", "POINT (11.57 48.13)", 611675.5, 0.1);
+    }
+
+    @Test
+    public void geographicGradCoordinatesAreConvertedToDegrees() {
+        String gradCrs = "<http://www.opengis.net/def/crs/EPSG/0/4807> ";
+        double grad = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 200;
+        assertDistance(gradCrs + "POINT (50 0)", gradCrs + "POINT (51 0)", grad, 0.001);
     }
 
     @Test
