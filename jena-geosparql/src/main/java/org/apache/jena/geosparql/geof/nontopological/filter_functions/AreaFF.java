@@ -29,7 +29,7 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase2;
 
-/** Implements geof:area. */
+/** Implements geof:area with an explicit area unit IRI or xsd:anyURI literal. */
 public class AreaFF extends FunctionBase2 {
 
     @Override

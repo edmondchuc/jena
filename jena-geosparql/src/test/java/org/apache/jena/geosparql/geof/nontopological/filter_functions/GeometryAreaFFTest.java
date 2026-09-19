@@ -147,11 +147,11 @@ public class GeometryAreaFFTest {
 
     private NodeValue exec(NodeValue value) {
         return metric ? new MetricAreaFF().exec(value)
-            : new AreaFF().exec(value, NodeValue.makeNode(NodeFactory.createURI(Unit_URI.METRE_URL)));
+            : new AreaFF().exec(value, NodeValue.makeNode(NodeFactory.createURI(Unit_URI.SQUARE_METRE_QUDT)));
     }
 
     private String call(String geometry) {
-        return "geof:" + name + "(" + geometry + (metric ? "" : ", <" + Unit_URI.METRE_URL + ">") + ")";
+        return "geof:" + name + "(" + geometry + (metric ? "" : ", <" + Unit_URI.SQUARE_METRE_QUDT + ">") + ")";
     }
 
     private void assertArea(String wkt, double expected) {

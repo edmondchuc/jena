@@ -28,7 +28,7 @@ import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.apache.jena.sparql.function.FunctionBase1;
 
-/** Implements geof:metricArea. */
+/** Implements geof:metricArea in square metres. */
 public class MetricAreaFF extends FunctionBase1 {
 
     @Override

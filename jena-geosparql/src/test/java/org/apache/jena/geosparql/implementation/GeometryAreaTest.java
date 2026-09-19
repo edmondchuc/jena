@@ -45,12 +45,12 @@ public class GeometryAreaTest {
     }
 
     @Test
-    public void polygonAreaUsesTheSquaredTargetUnit() {
+    public void polygonAreaUsesTheExplicitTargetAreaUnit() {
         GeometryWrapper polygon = geometry("<" + EPSG_32634 + "> POLYGON(("
                 + "500000 4600000,501000 4600000,501000 4601000,"
                 + "500000 4601000,500000 4600000))");
 
-        assertEquals(1.0, GeometryArea.calculate(polygon, Unit_URI.KILOMETRE_URL), 0.0);
+        assertEquals(1.0, GeometryArea.calculate(polygon, Unit_URI.SQUARE_KILOMETRE_QUDT), 0.0);
     }
 
     @Test
@@ -92,32 +92,23 @@ public class GeometryAreaTest {
     }
 
     @Test
-    public void projectedNonMetreAreaSquaresJenaConversionFactor() {
+    public void projectedNonMetreAreaConvertsTheSourceAreaQuantity() {
         GeometryWrapper polygon = geometry("<" + EPSG_2227 + "> POLYGON(("
                 + "6300000 2000000,6300003 2000000,6300003 2000004,"
                 + "6300000 2000004,6300000 2000000))");
 
-        assertEquals(1.1148437952119998,
+        assertEquals(1.114840939359298,
                 metricArea(polygon), 1e-12);
     }
 
     @Test
-    public void multiPolygonAreaIsAccumulatedBeforeSquaredConversion() {
+    public void multiPolygonAreaIsAccumulatedBeforeUnitConversion() {
         GeometryWrapper multiPolygon = geometry("<" + EPSG_32634 + "> MULTIPOLYGON("
                 + "((0 0,0.02 0,0.02 0.02,0 0.02,0 0)),"
                 + "((1 0,1.02 0,1.02 0.02,1 0.02,1 0)))");
 
         assertEquals(0.0000000008,
-                GeometryArea.calculate(multiPolygon, Unit_URI.KILOMETRE_URL), 1e-20);
-    }
-
-    @Test
-    public void squaredConversionFactorIsAppliedToAccumulatedAreaOnce() {
-        GeometryWrapper polygon = geometry("<" + EPSG_32634
-                + "> POLYGON((0 0,0.009 0,0.009 1,0 1,0 0))");
-
-        assertEquals(0.000000009,
-                GeometryArea.calculate(polygon, Unit_URI.KILOMETRE_URL), 0.0);
+                GeometryArea.calculate(multiPolygon, Unit_URI.SQUARE_KILOMETRE_QUDT), 1e-20);
     }
 
     @Test

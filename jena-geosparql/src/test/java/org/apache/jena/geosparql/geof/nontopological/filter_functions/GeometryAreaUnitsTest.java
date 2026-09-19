@@ -27,6 +27,7 @@ import static org.junit.Assert.assertThrows;
 import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
 import org.apache.jena.geosparql.implementation.datatype.WKTDatatype;
 import org.apache.jena.geosparql.implementation.vocabulary.Unit_URI;
+import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -43,29 +44,52 @@ public class GeometryAreaUnitsTest {
     }
 
     @Test
-    public void linearUnitArgumentProducesSquareKilometres() {
-        assertEquals(NodeValue.makeDouble(1).asNode(), evaluate(POLYGON, "<" + Unit_URI.KILOMETRE_URN + ">"));
+    public void explicitAreaUnitsConvertTheAreaQuantity() {
+        Object[][] expected = {
+                { Unit_URI.SQUARE_METRE_QUDT, 1_000_000.0 },
+                { Unit_URI.SQUARE_KILOMETRE_QUDT, 1.0 },
+                { Unit_URI.SQUARE_CENTIMETRE_QUDT, 10_000_000_000.0 },
+                { Unit_URI.SQUARE_MILLIMETRE_QUDT, 1_000_000_000_000.0 },
+                { Unit_URI.SQUARE_FOOT_QUDT, 10_763_910.416709722 },
+                { Unit_URI.SQUARE_US_SURVEY_FOOT_URL, 10_763_867.361111112 },
+                { Unit_URI.SQUARE_YARD_QUDT, 1_195_990.0463010803 },
+                { Unit_URI.SQUARE_INCH_QUDT, 1_550_003_100.0062 },
+                { Unit_URI.SQUARE_MILE_QUDT, 0.38610215854244585 },
+                { Unit_URI.HECTARE_QUDT, 100.0 },
+                { Unit_URI.ACRE_QUDT, 247.10538146716534 },
+        };
+        for (Object[] entry : expected) {
+            String uri = (String) entry[0];
+            double area = (double) entry[1];
+            Node result = evaluate(POLYGON, "<" + uri + ">");
+            assertEquals(uri, area, ((Number) result.getLiteralValue()).doubleValue(), area * 1e-12);
+        }
+    }
+
+    @Test
+    public void ogcStyleAreaUriIsAccepted() {
+        assertEquals(NodeValue.makeDouble(100).asNode(), evaluate(POLYGON, "<" + Unit_URI.HECTARE_URL + ">"));
     }
 
     @Test
     public void anyUriUnitLiteralIsAccepted() {
-        assertEquals(NodeValue.makeDouble(1).asNode(), evaluate(POLYGON, "'" + Unit_URI.KILOMETRE_URN + "'^^xsd:anyURI"));
+        assertEquals(NodeValue.makeDouble(1).asNode(), evaluate(POLYGON, "'" + Unit_URI.SQUARE_KILOMETRE_QUDT + "'^^xsd:anyURI"));
     }
 
     @Test
     public void invalidUnitsRaiseExpressionErrorsEvenForEmptyGeometry() {
         NodeValue empty = NodeValue.makeNode("POINT EMPTY", WKTDatatype.INSTANCE);
-        for (NodeValue unit : new NodeValue[] { NodeValue.makeString(Unit_URI.METRE_URL), NodeValue.makeInteger(1),
+        for (NodeValue unit : new NodeValue[] { NodeValue.makeString(Unit_URI.SQUARE_METRE_QUDT), NodeValue.makeInteger(1),
                 NodeValue.makeNode(NodeFactory.createURI("urn:unknown-unit")),
-                NodeValue.makeNode(NodeFactory.createURI(Unit_URI.DEGREE_URL)) }) {
+                NodeValue.makeNode(NodeFactory.createURI(Unit_URI.KILOMETRE_URL)) }) {
             assertThrows(ExprEvalException.class, () -> function.exec(empty, unit));
         }
     }
 
     @Test
     public void invalidUnitsLeaveBindUnboundForEmptyAndNonemptyInputs() {
-        for (String unit : new String[] { "'" + Unit_URI.METRE_URL + "'", "1", "<urn:unknown-unit>",
-                                        "<" + Unit_URI.DEGREE_URL + ">", "?missing" }) {
+        for (String unit : new String[] { "'" + Unit_URI.SQUARE_METRE_QUDT + "'", "1", "<urn:unknown-unit>",
+                                        "<" + Unit_URI.KILOMETRE_URL + ">", "?missing" }) {
             assertNull(unit, evaluate(POLYGON, unit));
             assertNull(unit, evaluate("'POINT EMPTY'^^geo:wktLiteral", unit));
         }
@@ -74,11 +98,11 @@ public class GeometryAreaUnitsTest {
     @Test
     public void malformedGeometryRaisesExpressionError() {
         NodeValue invalid = NodeValue.makeNode("invalid", WKTDatatype.INSTANCE);
-        NodeValue metre = NodeValue.makeNode(NodeFactory.createURI(Unit_URI.METRE_URL));
-        assertThrows(ExprEvalException.class, () -> function.exec(invalid, metre));
+        NodeValue squareMetre = NodeValue.makeNode(NodeFactory.createURI(Unit_URI.SQUARE_METRE_QUDT));
+        assertThrows(ExprEvalException.class, () -> function.exec(invalid, squareMetre));
     }
 
-    private org.apache.jena.graph.Node evaluate(String geometry, String unit) {
+    private Node evaluate(String geometry, String unit) {
         return GeometryAreaFFTest.evaluate("geof:area(" + geometry + ", " + unit + ")");
     }
 }

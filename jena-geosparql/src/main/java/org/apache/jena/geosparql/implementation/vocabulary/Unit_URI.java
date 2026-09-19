@@ -53,6 +53,30 @@ public interface Unit_URI {
     public static final String NAUTICAL_MILE_URL = GeoSPARQL_URI.UOM_URI + "nauticalMile";
     public static final String US_SURVEY_FOOT_URL = GeoSPARQL_URI.UOM_URI + "surveyFootUS";
 
+    // Area units: QUDT IRIs and explicit OGC-style area URIs.
+    public static final String SQUARE_METRE_QUDT = "http://qudt.org/vocab/unit/M2";
+    public static final String SQUARE_KILOMETRE_QUDT = "http://qudt.org/vocab/unit/KiloM2";
+    public static final String SQUARE_CENTIMETRE_QUDT = "http://qudt.org/vocab/unit/CentiM2";
+    public static final String SQUARE_MILLIMETRE_QUDT = "http://qudt.org/vocab/unit/MilliM2";
+    public static final String SQUARE_FOOT_QUDT = "http://qudt.org/vocab/unit/FT2";
+    public static final String SQUARE_YARD_QUDT = "http://qudt.org/vocab/unit/YD2";
+    public static final String SQUARE_INCH_QUDT = "http://qudt.org/vocab/unit/IN2";
+    public static final String SQUARE_MILE_QUDT = "http://qudt.org/vocab/unit/MI2";
+    public static final String HECTARE_QUDT = "http://qudt.org/vocab/unit/HA";
+    public static final String ACRE_QUDT = "http://qudt.org/vocab/unit/AC";
+
+    public static final String SQUARE_METRE_URL = GeoSPARQL_URI.UOM_URI + "squareMetre";
+    public static final String SQUARE_KILOMETRE_URL = GeoSPARQL_URI.UOM_URI + "squareKilometre";
+    public static final String SQUARE_CENTIMETRE_URL = GeoSPARQL_URI.UOM_URI + "squareCentimetre";
+    public static final String SQUARE_MILLIMETRE_URL = GeoSPARQL_URI.UOM_URI + "squareMillimetre";
+    public static final String SQUARE_FOOT_URL = GeoSPARQL_URI.UOM_URI + "squareFoot";
+    public static final String SQUARE_US_SURVEY_FOOT_URL = GeoSPARQL_URI.UOM_URI + "squareSurveyFootUS";
+    public static final String SQUARE_YARD_URL = GeoSPARQL_URI.UOM_URI + "squareYard";
+    public static final String SQUARE_INCH_URL = GeoSPARQL_URI.UOM_URI + "squareInch";
+    public static final String SQUARE_MILE_URL = GeoSPARQL_URI.UOM_URI + "squareMile";
+    public static final String HECTARE_URL = GeoSPARQL_URI.UOM_URI + "hectare";
+    public static final String ACRE_URL = GeoSPARQL_URI.UOM_URI + "acre";
+
     //URN references in: https://sis.apache.org/apidocs/org/apache/sis/measure/Units.html
     //Angular
     public static final String RADIAN_URN = "urn:ogc:def:uom:EPSG::9101";

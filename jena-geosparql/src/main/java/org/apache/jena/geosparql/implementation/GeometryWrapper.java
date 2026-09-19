@@ -685,18 +685,19 @@ public class GeometryWrapper implements Serializable {
         return new GeometryWrapper(parsingGeo, xyGeo, srsInfo.getSrsURI(), geometryDatatypeURI, dimensionInfo);
     }
 
-    /** Returns polygon area in square metres. */
+    /** Returns Polygon or MultiPolygon area in square metres. */
     public double area() {
-        return area(Unit_URI.METRE_URL);
+        return area(Unit_URI.SQUARE_METRE_QUDT);
     }
 
     /**
-     * Returns Polygon or MultiPolygon area in the square of the requested linear
-     * unit, including subtraction of holes. Empty inputs and other geometry types,
+     * Returns Polygon or MultiPolygon area in the requested area unit, including
+     * subtraction of holes. Empty inputs and other geometry types,
      * including generic collections, return zero. Z and M are ignored.
      * Nonempty polygons require a non-geographic horizontal CRS with equivalent
-     * linear units on both axes. The linear conversion factor is squared once.
+     * linear units on both axes.
      *
+     * @param unitsURI URI of an explicit area unit.
      * @throws org.apache.jena.geosparql.implementation.registry.UnitsURIException if the unit URI is unknown.
      * @throws UnitsConversionException if the source CRS or target units are unsupported.
      */

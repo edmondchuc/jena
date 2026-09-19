@@ -22,7 +22,9 @@ package org.apache.jena.geosparql.implementation;
 
 import javax.measure.IncommensurableException;
 import javax.measure.Unit;
+import javax.measure.quantity.Area;
 
+import org.apache.sis.measure.Quantities;
 import org.apache.sis.referencing.CRS;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
@@ -35,10 +37,7 @@ final class GeometryArea {
     }
 
     static double calculate(GeometryWrapper geometry, String targetUnitUri) {
-        UnitsOfMeasure targetUnits = new UnitsOfMeasure(targetUnitUri);
-        if (!targetUnits.isLinearUnits()) {
-            throw new UnitsConversionException("Area requires linear target units.");
-        }
+        Unit<Area> targetUnit = AreaUnitsOfMeasure.getUnit(targetUnitUri);
         Geometry xyGeometry = geometry.getXYGeometry();
         if (!(xyGeometry instanceof Polygon || xyGeometry instanceof MultiPolygon)
                 || xyGeometry.isEmpty()) {
@@ -47,10 +46,10 @@ final class GeometryArea {
         if (geometry.getSrsInfo().isGeographic()) {
             throw new UnitsConversionException("Area is not supported for geographic coordinate reference systems.");
         }
-        UnitsOfMeasure sourceUnits = equivalentHorizontalAxisUnits(geometry);
-        double conversionFactor = UnitsOfMeasure.conversion(
-                1.0, sourceUnits, targetUnits);
-        return xyGeometry.getArea() * (conversionFactor * conversionFactor);
+        Unit<Area> sourceUnit = equivalentHorizontalAxisUnits(geometry).getUnit()
+                .pow(2).asType(Area.class);
+        return Quantities.create(xyGeometry.getArea(), sourceUnit)
+                .to(targetUnit).getValue().doubleValue();
     }
 
     private static UnitsOfMeasure equivalentHorizontalAxisUnits(GeometryWrapper geometry) {
