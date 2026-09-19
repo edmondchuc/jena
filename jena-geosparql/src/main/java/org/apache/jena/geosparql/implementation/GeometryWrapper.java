@@ -607,7 +607,11 @@ public class GeometryWrapper implements Serializable {
         Coordinate coord1 = coordinatePair.getCoord1();
         Coordinate coord2 = coordinatePair.getCoord2();
 
-        double distance = GreatCircleDistance.haversineFormula(coord1.getY(), coord1.getX(), coord2.getY(), coord2.getX());
+        double degreesPerUnit = transformedSourceGeometry.getUnitsOfMeasure().getUnit()
+                .getConverterTo(UnitsOfMeasure.DEGREE_UNITS.getUnit()).convert(1.0);
+        double distance = GreatCircleDistance.haversineFormula(
+                coord1.getY() * degreesPerUnit, coord1.getX() * degreesPerUnit,
+                coord2.getY() * degreesPerUnit, coord2.getX() * degreesPerUnit);
 
         //Convert the Great Circle distance from metres into the requested units.
         return UnitsOfMeasure.conversion(distance, Unit_URI.METRE_URL, targetDistanceUnitsURI);
