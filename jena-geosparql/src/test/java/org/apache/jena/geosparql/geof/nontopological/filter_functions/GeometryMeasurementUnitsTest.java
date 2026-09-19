@@ -43,6 +43,7 @@ public class GeometryMeasurementUnitsTest {
     private final String name;
     private final FunctionBase2 function;
     private static final String LINE = "'<http://www.opengis.net/def/crs/EPSG/0/27700> LINESTRING (0 0, 3000 4000)'^^geo:wktLiteral";
+    private static final String SURVEY_FEET_LINE = "'<http://www.opengis.net/def/crs/EPSG/0/3438> LINESTRING (0 0, 3000 4000)'^^geo:wktLiteral";
 
     @Parameterized.Parameters(name = "function: {0}")
     public static List<Object[]> functions() {
@@ -60,8 +61,8 @@ public class GeometryMeasurementUnitsTest {
     }
 
     @Test
-    public void requestedKilometresAreConvertedFromSourceMetres() {
-        assertEquals(NodeValue.makeDouble(5).asNode(), evaluate(LINE, "<" + Unit_URI.KILOMETRE_URN + ">"));
+    public void requestedKilometresAreConvertedFromSourceSurveyFeet() {
+        assertEquals(NodeValue.makeDouble(1.524003).asNode(), evaluate(SURVEY_FEET_LINE, "<" + Unit_URI.KILOMETRE_URN + ">"));
     }
 
     @Test

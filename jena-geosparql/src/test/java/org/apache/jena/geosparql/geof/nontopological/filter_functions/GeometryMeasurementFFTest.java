@@ -114,6 +114,18 @@ public class GeometryMeasurementFFTest {
     }
 
     @Test
+    public void geographicGradCoordinatesAreConvertedToDegrees() {
+        double grad = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 200;
+        assertMeasure("<http://www.opengis.net/def/crs/EPSG/0/4807> LINESTRING (50 0, 51 0)", grad, 0.001);
+    }
+
+    @Test
+    public void nearAntipodalSegmentHasFiniteLength() {
+        double halfCircumference = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS;
+        assertMeasure("LINESTRING (0 -70, 180 70.00000001)", halfCircumference, 0.01);
+    }
+
+    @Test
     public void geographicMembersAreNotJoinedByExtraSegments() {
         double degree = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180;
         assertMeasure("MULTILINESTRING ((0 0, 1 0), (100 0, 101 0))", 2 * degree, 0.001);

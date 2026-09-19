@@ -190,6 +190,7 @@ public class GreatCircleDistance {
         double a = Math.pow(Math.sin(diffLatRad / 2), 2)
                 + Math.cos(lat1Rad) * Math.cos(lat2Rad)
                 * Math.pow(Math.sin(diffLonRad / 2), 2);
+        a = Math.max(0.0, Math.min(1.0, a));
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         double distance = UnitsOfMeasure.EARTH_MEAN_RADIUS * c;
