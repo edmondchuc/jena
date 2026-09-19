@@ -36,17 +36,16 @@ final class AreaUnitsOfMeasure {
     private static final Map<String, Unit<Area>> UNITS = new HashMap<>();
 
     static {
-        add(Unit_URI.SQUARE_METRE_QUDT, Unit_URI.SQUARE_METRE_URL, Units.SQUARE_METRE);
-        add(Unit_URI.SQUARE_KILOMETRE_QUDT, Unit_URI.SQUARE_KILOMETRE_URL, square(Units.KILOMETRE));
-        add(Unit_URI.SQUARE_CENTIMETRE_QUDT, Unit_URI.SQUARE_CENTIMETRE_URL, square(Units.CENTIMETRE));
-        add(Unit_URI.SQUARE_MILLIMETRE_QUDT, Unit_URI.SQUARE_MILLIMETRE_URL, square(Units.MILLIMETRE));
-        add(Unit_URI.SQUARE_FOOT_QUDT, Unit_URI.SQUARE_FOOT_URL, square(Units.FOOT));
-        add(Unit_URI.SQUARE_US_SURVEY_FOOT_URL, square(Units.US_SURVEY_FOOT));
-        add(Unit_URI.SQUARE_YARD_QUDT, Unit_URI.SQUARE_YARD_URL, square(Units.FOOT.multiply(3)));
-        add(Unit_URI.SQUARE_INCH_QUDT, Unit_URI.SQUARE_INCH_URL, square(Units.INCH));
-        add(Unit_URI.SQUARE_MILE_QUDT, Unit_URI.SQUARE_MILE_URL, square(Units.STATUTE_MILE));
-        add(Unit_URI.HECTARE_QUDT, Unit_URI.HECTARE_URL, Units.HECTARE);
-        add(Unit_URI.ACRE_QUDT, Unit_URI.ACRE_URL, Units.FOOT.pow(2).multiply(43560).asType(Area.class));
+        UNITS.put(Unit_URI.SQUARE_METRE_QUDT, Units.SQUARE_METRE);
+        UNITS.put(Unit_URI.SQUARE_KILOMETRE_QUDT, square(Units.KILOMETRE));
+        UNITS.put(Unit_URI.SQUARE_CENTIMETRE_QUDT, square(Units.CENTIMETRE));
+        UNITS.put(Unit_URI.SQUARE_MILLIMETRE_QUDT, square(Units.MILLIMETRE));
+        UNITS.put(Unit_URI.SQUARE_FOOT_QUDT, square(Units.FOOT));
+        UNITS.put(Unit_URI.SQUARE_YARD_QUDT, square(Units.FOOT.multiply(3)));
+        UNITS.put(Unit_URI.SQUARE_INCH_QUDT, square(Units.INCH));
+        UNITS.put(Unit_URI.SQUARE_MILE_QUDT, square(Units.STATUTE_MILE));
+        UNITS.put(Unit_URI.HECTARE_QUDT, Units.HECTARE);
+        UNITS.put(Unit_URI.ACRE_QUDT, Units.FOOT.pow(2).multiply(43560).asType(Area.class));
     }
 
     private AreaUnitsOfMeasure() {
@@ -67,14 +66,5 @@ final class AreaUnitsOfMeasure {
 
     private static Unit<Area> square(Unit<?> lengthUnit) {
         return lengthUnit.pow(2).asType(Area.class);
-    }
-
-    private static void add(String qudtUri, String ogcUri, Unit<Area> unit) {
-        UNITS.put(qudtUri, unit);
-        UNITS.put(ogcUri, unit);
-    }
-
-    private static void add(String ogcUri, Unit<Area> unit) {
-        UNITS.put(ogcUri, unit);
     }
 }

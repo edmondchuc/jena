@@ -51,7 +51,6 @@ public class GeometryAreaUnitsTest {
                 { Unit_URI.SQUARE_CENTIMETRE_QUDT, 10_000_000_000.0 },
                 { Unit_URI.SQUARE_MILLIMETRE_QUDT, 1_000_000_000_000.0 },
                 { Unit_URI.SQUARE_FOOT_QUDT, 10_763_910.416709722 },
-                { Unit_URI.SQUARE_US_SURVEY_FOOT_URL, 10_763_867.361111112 },
                 { Unit_URI.SQUARE_YARD_QUDT, 1_195_990.0463010803 },
                 { Unit_URI.SQUARE_INCH_QUDT, 1_550_003_100.0062 },
                 { Unit_URI.SQUARE_MILE_QUDT, 0.38610215854244585 },
@@ -67,8 +66,12 @@ public class GeometryAreaUnitsTest {
     }
 
     @Test
-    public void ogcStyleAreaUriIsAccepted() {
-        assertEquals(NodeValue.makeDouble(100).asNode(), evaluate(POLYGON, "<" + Unit_URI.HECTARE_URL + ">"));
+    public void undeclaredOgcLookingAreaUriIsRejected() {
+        String uri = "http://www.opengis.net/def/uom/OGC/1.0/squareMetre";
+        assertThrows(ExprEvalException.class,
+                () -> function.exec(NodeValue.makeNode("POINT EMPTY", WKTDatatype.INSTANCE),
+                        NodeValue.makeNode(NodeFactory.createURI(uri))));
+        assertNull(evaluate(POLYGON, "<" + uri + ">"));
     }
 
     @Test
