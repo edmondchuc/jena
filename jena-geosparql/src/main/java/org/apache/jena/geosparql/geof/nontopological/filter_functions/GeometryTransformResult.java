@@ -21,6 +21,7 @@
 package org.apache.jena.geosparql.geof.nontopological.filter_functions;
 
 import org.apache.jena.geosparql.implementation.GeometryWrapper;
+import org.apache.jena.graph.Node;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.locationtech.jts.geom.CoordinateSequence;
@@ -42,9 +43,15 @@ final class GeometryTransformResult {
         }
         checkFinite(transformed.getParsingGeometry());
         NodeValue result = transformed.asNodeValue();
-        GeometryWrapper parsed = GeometryWrapper.extract(result);
+        Node resultNode = result.asNode();
+        GeometryWrapper parsed;
+        try {
+            parsed = transformed.getGeometryDatatype().read(resultNode.getLiteralLexicalForm());
+        } catch (IllegalArgumentException ex) {
+            throw new ExprEvalException("Transform result cannot be parsed after serialization.", ex);
+        }
         if (!targetURI.equals(parsed.getSrsURI())
-                || !transformed.getGeometryDatatypeURI().equals(parsed.getGeometryDatatypeURI())
+                || !transformed.getGeometryDatatypeURI().equals(resultNode.getLiteralDatatypeURI())
                 || transformed.getCoordinateSequenceDimensions() != parsed.getCoordinateSequenceDimensions()) {
             throw new ExprEvalException("Transform result loses its CRS, datatype, or coordinate layout when serialized.");
         }

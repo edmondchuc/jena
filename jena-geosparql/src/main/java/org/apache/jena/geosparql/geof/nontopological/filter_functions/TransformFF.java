@@ -39,8 +39,9 @@ public class TransformFF extends FunctionBase2 {
         String targetURI = targetURI(target);
         try {
             GeometryWrapper geometry = GeometryWrapper.extract(value);
-            if (!geometry.getSrsInfo().isSRSRecognised()
-                    || !SRSRegistry.getSRSInfo(targetURI).isSRSRecognised()) {
+            if (!targetURI.equals(geometry.getSrsURI())
+                    && (!geometry.getSrsInfo().isSRSRecognised()
+                            || !SRSRegistry.getSRSInfo(targetURI).isSRSRecognised())) {
                 throw new ExprEvalException("Source or target CRS is not recognized.");
             }
             GeometryWrapper transformed = geometry.transform(targetURI);

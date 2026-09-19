@@ -32,6 +32,8 @@ import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
 import org.apache.jena.geosparql.implementation.GeometryWrapper;
 import org.apache.jena.geosparql.implementation.datatype.GMLDatatype;
 import org.apache.jena.geosparql.implementation.datatype.WKTDatatype;
+import org.apache.jena.geosparql.implementation.index.GeometryLiteralIndex;
+import org.apache.jena.geosparql.implementation.jts.CoordinateSequenceDimensions;
 import org.apache.jena.geosparql.implementation.vocabulary.SRS_URI;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -122,8 +124,15 @@ public class TransformFFTest {
     @Test
     public void identityRetainsWktLayout() {
         NodeValue source = wkt("POINT ZM (1 2 3 4)");
-        NodeValue result = function.exec(source, iri(CRS84));
-        assertEquals(source.asNode(), result.asNode());
+        GeometryWrapper result = GeometryWrapper.extract(function.exec(source, iri(CRS84)));
+        CoordinateSequence coordinates = ((Point)result.getParsingGeometry()).getCoordinateSequence();
+        assertEquals(WKTDatatype.URI, result.getGeometryDatatypeURI());
+        assertEquals(CRS84, result.getSrsURI());
+        assertEquals(CoordinateSequenceDimensions.XYZM, result.getCoordinateSequenceDimensions());
+        assertEquals(1, coordinates.getX(0), 0.0);
+        assertEquals(2, coordinates.getY(0), 0.0);
+        assertEquals(3, coordinates.getZ(0), 0.0);
+        assertEquals(4, coordinates.getM(0), 0.0);
     }
 
     @Test
@@ -173,6 +182,33 @@ public class TransformFFTest {
     public void unknownSourceOrTargetIsAnExpressionError() {
         expectExpressionError(wkt("<" + UNKNOWN + "> POINT(1 2)"), iri(CRS84));
         expectExpressionError(wkt("POINT(1 2)"), iri(UNKNOWN));
+    }
+
+    @Test
+    public void unknownSrsIdentitySucceeds() {
+        GeometryWrapper result = GeometryWrapper.extract(function.exec(
+                wkt("<" + UNKNOWN + "> POINT(1 2)"), iri(UNKNOWN)));
+        assertEquals(WKTDatatype.URI, result.getGeometryDatatypeURI());
+        assertEquals(UNKNOWN, result.getSrsURI());
+        Point point = (Point)result.getParsingGeometry();
+        assertEquals(1, point.getX(), 0.0);
+        assertEquals(2, point.getY(), 0.0);
+    }
+
+    @Test
+    public void validationDoesNotCacheGeneratedResult() {
+        GeoSPARQLConfig.setupMemoryIndex();
+        try {
+            NodeValue source = wkt("POINT(1 2)");
+            GeometryWrapper.extract(source);
+            assertEquals(1, GeometryLiteralIndex.getPrimaryIndexSize());
+
+            NodeValue result = function.exec(source, iri(WGS84));
+            assertEquals(WKTDatatype.URI, result.asNode().getLiteralDatatypeURI());
+            assertEquals(1, GeometryLiteralIndex.getPrimaryIndexSize());
+        } finally {
+            GeoSPARQLConfig.setupNoIndex();
+        }
     }
 
     @Test
