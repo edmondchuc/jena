@@ -32,10 +32,7 @@ import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.FactoryException;
 
-/**
- * Computes distance in metres using the existing Euclidean or great-circle
- * calculation selected by the first geometry's SRS.
- */
+/** Implements geof:metricDistance. */
 public class MetricDistanceFF extends FunctionBase2 {
 
     @Override
