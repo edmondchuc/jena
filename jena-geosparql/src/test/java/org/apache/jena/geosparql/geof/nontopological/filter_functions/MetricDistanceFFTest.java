@@ -23,6 +23,7 @@ package org.apache.jena.geosparql.geof.nontopological.filter_functions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -56,6 +57,13 @@ public class MetricDistanceFFTest {
     public void projectedDistanceReturnsMetresAsDouble() {
         Node result = metricDistance(PROJECTED + "POINT (60 60)", PROJECTED + "POINT (63 64)");
         assertEquals(NodeValue.makeDouble(5).asNode(), result);
+    }
+
+    @Test
+    public void sourceSurveyFeetAreConvertedToMetres() {
+        String surveyFeet = "<http://www.opengis.net/def/crs/EPSG/0/3438> ";
+        assertDistance(surveyFeet + "POINT (0 0)", surveyFeet + "POINT (3000 4000)",
+                       5000 * 1200.0 / 3937, 0.000001);
     }
 
     @Test
@@ -114,8 +122,14 @@ public class MetricDistanceFFTest {
         for (String[] pair : pairs) {
             String arguments = literal(pair[0]) + ", " + literal(pair[1]);
             Node explicit = evaluate("geof:distance(" + arguments + ", <" + Unit_URI.METRE_URL + ">)");
-            assertEquals(arguments, explicit, metricDistance(pair[0], pair[1]));
+            Node metric = metricDistance(pair[0], pair[1]);
+            assertNotNull(arguments, explicit);
+            assertNotNull(arguments, metric);
+            assertTrue(arguments, NodeValue.makeNode(explicit).isNumber());
+            assertTrue(arguments, NodeValue.makeNode(metric).isNumber());
+            assertEquals(arguments, explicit, metric);
         }
+        assertDistance("POINT (20 10)", WGS84 + "POINT (10 21)", 109505.7, 0.1);
     }
 
     @Test
@@ -195,6 +209,7 @@ public class MetricDistanceFFTest {
 
     private static void assertDistance(String first, String second, double expected, double tolerance) {
         Node result = metricDistance(first, second);
+        assertNotNull(first + " / " + second, result);
         assertEquals(XSDDatatype.XSDdouble.getURI(), result.getLiteralDatatypeURI());
         assertEquals(expected, ((Number)result.getLiteralValue()).doubleValue(), tolerance);
     }

@@ -53,6 +53,31 @@ public class GeometryLengthTest {
     }
 
     @Test
+    public void geographicCompoundCrsUsesHorizontalGreatCircleLength() {
+        double degree = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180;
+        GeometryWrapper horizontal = GeometryWrapper.extract(
+                "<http://www.opengis.net/def/crs/EPSG/0/4326> LINESTRING (0 0, 0 1)", WKTDatatype.URI);
+        for (int code : new int[] { 9707, 9518 }) {
+            GeometryWrapper geometry = GeometryWrapper.extract("<http://www.opengis.net/def/crs/EPSG/0/" + code
+                    + "> LINESTRING ZM (0 0 100 10, 0 1 900 90)", WKTDatatype.URI);
+            assertEquals(degree, GeometryLength.calculate(geometry, Unit_URI.METRE_URL), 0.001);
+            assertEquals(horizontal.length(), geometry.length(), 0.001);
+            assertEquals(degree / 1000, geometry.perimeter(Unit_URI.KILOMETRE_URN), 0.000001);
+        }
+    }
+
+    @Test
+    public void projectedCompoundCrsUsesHorizontalPlanarLength() {
+        GeometryWrapper geometry = GeometryWrapper.extract(
+                "<http://www.opengis.net/def/crs/EPSG/0/7405> LINESTRING ZM (0 0 100 10, 3 4 900 90)", WKTDatatype.URI);
+        assertEquals(5, GeometryLength.calculate(geometry, Unit_URI.METRE_URL), 0);
+        GeometryWrapper horizontal = GeometryWrapper.extract(
+                "<http://www.opengis.net/def/crs/EPSG/0/27700> LINESTRING (0 0, 3 4)", WKTDatatype.URI);
+        assertEquals(horizontal.length(), geometry.length(), 0);
+        assertEquals(0.005, geometry.perimeter(Unit_URI.KILOMETRE_URN), 0);
+    }
+
+    @Test
     public void unitValidationPrecedesEmptyResult() {
         GeometryWrapper empty = GeometryWrapper.extract("LINESTRING EMPTY", WKTDatatype.URI);
         assertThrows(org.apache.jena.geosparql.implementation.registry.UnitsURIException.class,

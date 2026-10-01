@@ -23,9 +23,12 @@ package org.apache.jena.geosparql.geof.nontopological.filter_functions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
 import org.apache.jena.geosparql.implementation.datatype.WKTDatatype;
 import org.apache.jena.geosparql.implementation.vocabulary.Unit_URI;
@@ -68,6 +71,35 @@ public class GeometryMeasurementUnitsTest {
     @Test
     public void anyUriUnitLiteralIsAccepted() {
         assertEquals(NodeValue.makeDouble(5).asNode(), evaluate(LINE, "'" + Unit_URI.KILOMETRE_URN + "'^^xsd:anyURI"));
+    }
+
+    @Test
+    public void anyUriWhitespaceIsNormalizedInDirectExecution() {
+        NodeValue geometry = NodeValue.makeNode(
+                "<http://www.opengis.net/def/crs/EPSG/0/27700> LINESTRING (0 0, 3000 4000)", WKTDatatype.INSTANCE);
+        for (String lexical : new String[] { "  " + Unit_URI.KILOMETRE_URN + "  ",
+                "\t\r\n" + Unit_URI.KILOMETRE_URN + "\n\r\t" }) {
+            NodeValue unit = NodeValue.makeNode(lexical, XSDDatatype.XSDanyURI);
+            assertEquals(lexical, 5, function.exec(geometry, unit).getDouble(), 0);
+        }
+    }
+
+    @Test
+    public void anyUriWhitespaceIsNormalizedInRegisteredQueries() {
+        for (String lexical : new String[] { "  " + Unit_URI.KILOMETRE_URN + "  ",
+                "\\t\\r\\n" + Unit_URI.KILOMETRE_URN + "\\n\\r\\t" }) {
+            assertEquals(lexical, NodeValue.makeDouble(5).asNode(), evaluate(LINE, "'" + lexical + "'^^xsd:anyURI"));
+        }
+    }
+
+    @Test
+    public void malformedAnyUriRaisesDatatypeExpressionError() {
+        NodeValue geometry = NodeValue.makeNode(
+                "<http://www.opengis.net/def/crs/EPSG/0/27700> LINESTRING (0 0, 3000 4000)", WKTDatatype.INSTANCE);
+        NodeValue unit = NodeValue.makeNode("http://[", XSDDatatype.XSDanyURI);
+        ExprEvalException error = assertThrows(ExprEvalException.class, () -> function.exec(geometry, unit));
+        assertTrue(error.getCause() instanceof DatatypeFormatException);
+        assertNull(evaluate(LINE, "'http://['^^xsd:anyURI"));
     }
 
     @Test

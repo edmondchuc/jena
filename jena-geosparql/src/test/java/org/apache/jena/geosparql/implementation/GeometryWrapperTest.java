@@ -398,6 +398,16 @@ public class GeometryWrapperTest {
         assertEquals(expResult, result);
     }
 
+    @Test
+    public void testDistanceGreatCircle_gradAngularUnits() throws Exception {
+        String gradCrs = "<http://www.opengis.net/def/crs/EPSG/0/4807> ";
+        GeometryWrapper first = GeometryWrapper.extract(gradCrs + "POINT (50 0)", WKTDatatype.URI);
+        GeometryWrapper second = GeometryWrapper.extract(gradCrs + "POINT (51 0)", WKTDatatype.URI);
+        double expected = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 200;
+        assertEquals(expected, first.distanceGreatCircle(second, Unit_URI.METRE_URL), 0.001);
+        assertEquals(expected, first.distance(second), 0.001);
+    }
+
     /**
      * Test of distanceGreatCircle method, of class GeometryWrapper.
      *

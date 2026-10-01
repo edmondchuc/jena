@@ -20,6 +20,7 @@
  */
 package org.apache.jena.geosparql.implementation.great_circle;
 
+import org.apache.jena.geosparql.implementation.UnitsOfMeasure;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -203,6 +204,13 @@ public class GreatCircleDistanceTest {
         double expResult = 14184.1430;
         double result = GreatCircleDistance.vincentyFormula(lat1, lon1, lat2, lon2) / 1000; // Adjustment to kilometres.
         assertEquals(expResult, result, 0.3);
+    }
+
+    @Test
+    public void testHaversineFormula_nearAntipodalRounding() {
+        double result = GreatCircleDistance.haversineFormula(-70, 0, 70.00000001, 180);
+        assertTrue(Double.isFinite(result));
+        assertEquals(Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS, result, 0.01);
     }
 
     /**

@@ -41,7 +41,7 @@ public class LengthFF extends FunctionBase2 {
                 unitsURI = units.asNode().getURI();
             } else if (units.asNode().isLiteral()
                     && XSDDatatype.XSDanyURI.getURI().equals(units.asNode().getLiteralDatatypeURI())) {
-                unitsURI = units.asNode().getLiteralLexicalForm();
+                unitsURI = units.asNode().getLiteralValue().toString();
             } else {
                 throw new ExprEvalException("Expected a unit IRI or xsd:anyURI literal: " + units);
             }

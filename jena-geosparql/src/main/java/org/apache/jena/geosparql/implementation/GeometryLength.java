@@ -21,9 +21,11 @@
 package org.apache.jena.geosparql.implementation;
 
 import org.apache.jena.geosparql.implementation.great_circle.GreatCircleDistance;
+import org.apache.sis.referencing.CRS;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFilter;
 import org.locationtech.jts.geom.Geometry;
+import org.opengis.referencing.crs.GeographicCRS;
 
 final class GeometryLength {
     private GeometryLength() {
@@ -34,7 +36,7 @@ final class GeometryLength {
         if (!targetUnits.isLinearUnits()) {
             throw new UnitsConversionException("Linear measurement requires linear target units.");
         }
-        if (geometry.getSrsInfo().isGeographic()) {
+        if (CRS.getHorizontalComponent(geometry.getCRS()) instanceof GeographicCRS) {
             double degreesPerUnit = geometry.getUnitsOfMeasure().getUnit()
                     .getConverterTo(UnitsOfMeasure.DEGREE_UNITS.getUnit()).convert(1.0);
             return UnitsOfMeasure.conversion(greatCircleLength(geometry.getXYGeometry(), degreesPerUnit),
