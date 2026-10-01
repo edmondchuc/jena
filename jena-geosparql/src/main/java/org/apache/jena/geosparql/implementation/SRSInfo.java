@@ -207,9 +207,7 @@ public class SRSInfo {
     }
 
     /**
-     * Whether the horizontal component is geographic, including compound CRSs.
-     * Used by horizontal measurement calculations; {@link #isGeographic()} retains
-     * its classification of the complete CRS for other callers.
+     * Returns whether the horizontal part of the CRS uses latitude and longitude.
      */
     public boolean isHorizontalGeographic() {
         return CRS.getHorizontalComponent(crs) instanceof GeographicCRS;
