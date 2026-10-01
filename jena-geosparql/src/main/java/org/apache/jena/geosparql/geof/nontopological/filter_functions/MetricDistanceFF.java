@@ -43,8 +43,6 @@ public class MetricDistanceFF extends FunctionBase2 {
             GeometryWrapper geometry2 = GeometryWrapper.extract(v2, GeometryIndex.SECONDARY);
 
             if (geometry1.getSrsInfo().isHorizontalGeographic() && (geometry1.isEmpty() || geometry2.isEmpty())) {
-                // Preserve CRS validation before reporting the absence of nearest coordinates.
-                geometry1.checkTransformSRS(geometry2);
                 throw new ExprEvalException("Cannot calculate geographic distance with an empty geometry.");
             }
 

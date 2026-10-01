@@ -219,6 +219,30 @@ public class MetricDistanceFFTest {
     }
 
     @Test
+    public void emptyGeographicInputsDoNotRequireCrsAlignment() {
+        boolean previous = GeoSPARQLConfig.ALLOW_GEOMETRY_SRS_TRANSFORMATION;
+        try {
+            for (boolean allowTransformation : new boolean[] { true, false }) {
+                GeoSPARQLConfig.allowGeometrySRSTransformation(allowTransformation);
+                for (int code : new int[] { 4326, 4979, 9707, 9518 }) {
+                    String emptyWkt = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> POINT Z EMPTY";
+                    NodeValue empty = NodeValue.makeNode(emptyWkt, WKTDatatype.INSTANCE);
+                    NodeValue point = NodeValue.makeNode("POINT (1 2)", WKTDatatype.INSTANCE);
+                    MetricDistanceFF function = new MetricDistanceFF();
+                    ExprEvalException first = assertThrows(ExprEvalException.class, () -> function.exec(empty, point));
+                    ExprEvalException second = assertThrows(ExprEvalException.class, () -> function.exec(point, empty));
+                    assertTrue(first.getMessage().contains("empty geometry"));
+                    assertTrue(second.getMessage().contains("empty geometry"));
+                    assertNull(metricDistance(emptyWkt, "POINT (1 2)"));
+                    assertNull(metricDistance("POINT (1 2)", emptyWkt));
+                }
+            }
+        } finally {
+            GeoSPARQLConfig.allowGeometrySRSTransformation(previous);
+        }
+    }
+
+    @Test
     public void invalidArgumentsRaiseExpressionErrorsInEitherPosition() {
         NodeValue valid = NodeValue.makeNode("POINT (1 2)", WKTDatatype.INSTANCE);
         NodeValue[] invalid = {
