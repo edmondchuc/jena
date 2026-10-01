@@ -60,6 +60,73 @@ public class MetricDistanceFFTest {
     }
 
     @Test
+    public void compoundGeographicDistanceMatchesHorizontalControls() {
+        double expected = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180;
+        for (int code : new int[] { 4326, 4979, 9707, 9518 }) {
+            String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+            String first = crs + "POINT ZM (0 0 100 10)";
+            String second = crs + "POINT ZM (0 1 900 90)";
+            assertDistance(first, second, expected, 0.001);
+            Node explicit = evaluate("geof:distance(" + literal(first) + ", " + literal(second)
+                    + ", <" + Unit_URI.METRE_URL + ">)");
+            assertNotNull(explicit);
+            assertTrue(NodeValue.makeNode(explicit).isNumber());
+            assertEquals(metricDistance(first, second), explicit);
+            Node kilometres = evaluate("geof:distance(" + literal(first) + ", " + literal(second)
+                    + ", <" + Unit_URI.KILOMETRE_URN + ">)");
+            assertNotNull(kilometres);
+            assertEquals(expected / 1000, NodeValue.makeNode(kilometres).getDouble(), 0.000001);
+        }
+        String projected = "<http://www.opengis.net/def/crs/EPSG/0/7405> ";
+        assertDistance(projected + "POINT Z (0 0 100)", projected + "POINT Z (0 1 900)", 1, 0);
+    }
+
+    @Test
+    public void compoundGeographicNonPointDistanceHandlesDatelineInEitherDirection() {
+        double degree = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180;
+        for (int code : new int[] { 9707, 9518 }) {
+            String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+            String line = crs + "LINESTRING ZM (0 -179 100 10, 0 -170 200 20)";
+            String point = crs + "POINT ZM (0 179 900 90)";
+            assertDistance(line, point, 2 * degree, 0.001);
+            assertDistance(point, line, 2 * degree, 0.001);
+            assertDistance(crs + "LINESTRING Z (0 0 100, 0 10 200)", crs + "POINT Z (1 5 900)", degree, 0.001);
+        }
+    }
+
+    @Test
+    public void compoundGeographicSameCrsWorksWhenTransformationIsDisabled() {
+        boolean previous = GeoSPARQLConfig.ALLOW_GEOMETRY_SRS_TRANSFORMATION;
+        try {
+            GeoSPARQLConfig.allowGeometrySRSTransformation(false);
+            for (int code : new int[] { 9707, 9518 }) {
+                String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+                assertDistance(crs + "POINT Z (0 0 100)", crs + "POINT Z (0 1 900)",
+                               Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180, 0.001);
+            }
+        } finally {
+            GeoSPARQLConfig.allowGeometrySRSTransformation(previous);
+        }
+    }
+
+    @Test
+    public void compoundGeographicEmptyArgumentsRaiseExplicitExpressionErrors() {
+        for (int code : new int[] { 9707, 9518 }) {
+            String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+            NodeValue empty = NodeValue.makeNode(crs + "POINT Z EMPTY", WKTDatatype.INSTANCE);
+            NodeValue point = NodeValue.makeNode(crs + "POINT Z (0 1 900)", WKTDatatype.INSTANCE);
+            MetricDistanceFF function = new MetricDistanceFF();
+            ExprEvalException first = assertThrows(ExprEvalException.class, () -> function.exec(empty, point));
+            ExprEvalException second = assertThrows(ExprEvalException.class, () -> function.exec(point, empty));
+            assertTrue(first.getMessage().contains("empty geometry"));
+            assertTrue(second.getMessage().contains("empty geometry"));
+            assertThrows(ExprEvalException.class, () -> function.exec(empty, empty));
+            assertNull(metricDistance(crs + "POINT Z EMPTY", crs + "POINT Z (0 1 900)"));
+            assertNull(metricDistance(crs + "POINT Z (0 1 900)", crs + "POINT Z EMPTY"));
+        }
+    }
+
+    @Test
     public void sourceSurveyFeetAreConvertedToMetres() {
         String surveyFeet = "<http://www.opengis.net/def/crs/EPSG/0/3438> ";
         assertDistance(surveyFeet + "POINT (0 0)", surveyFeet + "POINT (3000 4000)",

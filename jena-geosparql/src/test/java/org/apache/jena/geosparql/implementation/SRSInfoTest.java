@@ -58,6 +58,20 @@ public class SRSInfoTest {
     public void tearDown() {
     }
 
+    @Test
+    public void testIsHorizontalGeographic() {
+        for (int code : new int[] { 4326, 4979, 9707, 9518 }) {
+            SRSInfo info = new SRSInfo("http://www.opengis.net/def/crs/EPSG/0/" + code);
+            assertTrue(info.isHorizontalGeographic());
+            assertEquals(code == 4326 || code == 4979, info.isGeographic());
+        }
+        for (int code : new int[] { 27700, 7405 }) {
+            SRSInfo info = new SRSInfo("http://www.opengis.net/def/crs/EPSG/0/" + code);
+            assertFalse(info.isHorizontalGeographic());
+            assertFalse(info.isGeographic());
+        }
+    }
+
     // SIS 1.1
     //public static final double OS_X1 = -104009.35713717458;
     //public static final double OS_X2 = 688806.0073395987;

@@ -20,6 +20,7 @@
  */
 package org.apache.jena.geosparql.implementation;
 
+import org.apache.jena.geosparql.configuration.GeoSPARQLConfig;
 import org.apache.jena.geosparql.implementation.datatype.GMLDatatype;
 import org.apache.jena.geosparql.implementation.datatype.WKTDatatype;
 import org.apache.jena.geosparql.implementation.jts.CoordinateSequenceDimensions;
@@ -396,6 +397,51 @@ public class GeometryWrapperTest {
         String gmlGeometryLiteral = "<gml:Point xmlns:gml=\"http://www.opengis.net/gml/3.2\" srsName=\"http://www.opengis.net/def/crs/OGC/1.3/CRS84\"><gml:pos>-83.38 33.95</gml:pos></gml:Point>";
         Literal expResult = ResourceFactory.createTypedLiteral(gmlGeometryLiteral, GMLDatatype.INSTANCE);
         assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testDistance_compoundGeographicHorizontalComponent() throws Exception {
+        double expected = Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180;
+        for (int code : new int[] { 4326, 4979, 9707, 9518 }) {
+            String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+            GeometryWrapper first = GeometryWrapper.extract(crs + "POINT ZM (0 0 100 10)", WKTDatatype.URI);
+            GeometryWrapper second = GeometryWrapper.extract(crs + "POINT ZM (0 1 900 90)", WKTDatatype.URI);
+            assertEquals(expected, first.distance(second), 0.001);
+            assertEquals(expected / 1000, first.distance(second, Unit_URI.KILOMETRE_URN), 0.000001);
+            assertEquals(expected, first.distanceGreatCircle(second), 0.001);
+        }
+        String projected = "<http://www.opengis.net/def/crs/EPSG/0/7405> ";
+        GeometryWrapper first = GeometryWrapper.extract(projected + "POINT ZM (0 0 100 10)", WKTDatatype.URI);
+        GeometryWrapper second = GeometryWrapper.extract(projected + "POINT ZM (0 1 900 90)", WKTDatatype.URI);
+        assertEquals(1, first.distance(second), 0);
+    }
+
+    @Test
+    public void testDistance_compoundGeographicWithoutTransformation() throws Exception {
+        boolean previous = GeoSPARQLConfig.ALLOW_GEOMETRY_SRS_TRANSFORMATION;
+        try {
+            GeoSPARQLConfig.allowGeometrySRSTransformation(false);
+            for (int code : new int[] { 9707, 9518 }) {
+                String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+                GeometryWrapper first = GeometryWrapper.extract(crs + "POINT Z (0 0 100)", WKTDatatype.URI);
+                GeometryWrapper second = GeometryWrapper.extract(crs + "POINT Z (0 1 900)", WKTDatatype.URI);
+                assertEquals(Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180, first.distanceGreatCircle(second), 0.001);
+            }
+        } finally {
+            GeoSPARQLConfig.allowGeometrySRSTransformation(previous);
+        }
+    }
+
+    @Test
+    public void testDistance_compoundGeographicDateline() throws Exception {
+        double expected = 2 * Math.PI * UnitsOfMeasure.EARTH_MEAN_RADIUS / 180;
+        for (int code : new int[] { 9707, 9518 }) {
+            String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+            GeometryWrapper line = GeometryWrapper.extract(crs + "LINESTRING ZM (0 -179 100 10, 0 -170 200 20)", WKTDatatype.URI);
+            GeometryWrapper point = GeometryWrapper.extract(crs + "POINT ZM (0 179 900 90)", WKTDatatype.URI);
+            assertEquals(expected, line.distance(point), 0.001);
+            assertEquals(expected, point.distance(line), 0.001);
+        }
     }
 
     @Test

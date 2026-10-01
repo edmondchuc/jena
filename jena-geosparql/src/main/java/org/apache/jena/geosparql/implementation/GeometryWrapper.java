@@ -328,7 +328,7 @@ public class GeometryWrapper implements Serializable {
 
         if (translateXYGeometry == null) {
 
-            if (srsInfo.isGeographic()) {
+            if (srsInfo.isHorizontalGeographic()) {
                 double xTranslate = srsInfo.getDomainRangeX();
                 AffineTransformation translation = AffineTransformation.translationInstance(xTranslate, 0);
                 translateXYGeometry = translation.transform(xyGeometry); //Translate seems to be copying Y values into Z and M.
@@ -706,7 +706,7 @@ public class GeometryWrapper implements Serializable {
             throw new UnitsConversionException("Great Circle distance units are metres and only linear conversion supported.");
         }
 
-        if (srsInfo.isGeographic()) {
+        if (srsInfo.isHorizontalGeographic()) {
             //Already a geographic SRS.
             transformedSourceGeometry = this;
         } else {
@@ -785,7 +785,7 @@ public class GeometryWrapper implements Serializable {
     public double distance(GeometryWrapper targetGeometry, String targetDistanceUnitsURI) throws FactoryException, MismatchedDimensionException, TransformException, UnitsConversionException {
 
         double targetDistance;
-        if (srsInfo.isGeographic()) {
+        if (srsInfo.isHorizontalGeographic()) {
             targetDistance = distanceGreatCircle(targetGeometry, targetDistanceUnitsURI);
         } else {
             targetDistance = distanceEuclidean(targetGeometry, targetDistanceUnitsURI);

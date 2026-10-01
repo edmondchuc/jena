@@ -98,7 +98,7 @@ public class CoordinatePair {
         //Both GeoemtryWrappers should be same SRS andn Geographic.
         SRSInfo sourceSRSInfo = sourceGeometry.getSrsInfo();
         SRSInfo targetSRSInfo = targetGeometry.getSrsInfo();
-        if (!(sourceSRSInfo.isGeographic() && targetSRSInfo.isGeographic()) || !(sourceSRSInfo.getSrsURI().equals(targetSRSInfo.getSrsURI()))) {
+        if (!(sourceSRSInfo.isHorizontalGeographic() && targetSRSInfo.isHorizontalGeographic()) || !(sourceSRSInfo.getSrsURI().equals(targetSRSInfo.getSrsURI()))) {
             throw new SrsException("Expected same Geographic SRS for GeometryWrappers. " + sourceGeometry + " : " + targetGeometry);
         }
 

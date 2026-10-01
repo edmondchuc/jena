@@ -55,6 +55,21 @@ public class CoordinatePairTest {
     public void tearDown() {
     }
 
+    @Test
+    public void testFindNearestPair_compoundGeographicDateline() {
+        for (int code : new int[] { 9707, 9518 }) {
+            String crs = "<http://www.opengis.net/def/crs/EPSG/0/" + code + "> ";
+            GeometryWrapper line = GeometryWrapper.extract(crs + "LINESTRING Z (0 -179 100, 0 -170 200)", WKTDatatype.URI);
+            GeometryWrapper point = GeometryWrapper.extract(crs + "POINT Z (0 179 900)", WKTDatatype.URI);
+            CoordinatePair pair = CoordinatePair.findNearestPair(line, point);
+            assertTrue(new Coordinate(181, 0).equals2D(pair.getCoord1()));
+            assertTrue(new Coordinate(179, 0).equals2D(pair.getCoord2()));
+            CoordinatePair reverse = CoordinatePair.findNearestPair(point, line);
+            assertTrue(new Coordinate(179, 0).equals2D(reverse.getCoord1()));
+            assertTrue(new Coordinate(181, 0).equals2D(reverse.getCoord2()));
+        }
+    }
+
     /**
      * Test of findNearestPair method, of class CoordinatePair.
      */
