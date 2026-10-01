@@ -20,10 +20,10 @@
  */
 package org.apache.jena.geosparql.geof.nontopological.filter_functions;
 
+import static org.apache.jena.geosparql.geof.nontopological.filter_functions.MeasurementFunctionTestSupport.evaluate;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -35,10 +35,6 @@ import org.apache.jena.geosparql.implementation.vocabulary.Unit_URI;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.QueryBuildException;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.expr.ExprEvalException;
 import org.apache.jena.sparql.expr.NodeValue;
 import org.junit.BeforeClass;
@@ -303,20 +299,5 @@ public class MetricDistanceFFTest {
         assertNotNull(first + " / " + second, result);
         assertEquals(XSDDatatype.XSDdouble.getURI(), result.getLiteralDatatypeURI());
         assertEquals(expected, ((Number)result.getLiteralValue()).doubleValue(), tolerance);
-    }
-
-    private static Node evaluate(String expression) {
-        String query = """
-            PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
-            PREFIX geo: <http://www.opengis.net/ont/geosparql#>
-            SELECT ?result WHERE { BIND(%s AS ?result) }
-            """.formatted(expression);
-        try (QueryExecution execution = QueryExecution.create(query, ModelFactory.createDefaultModel())) {
-            ResultSet results = execution.execSelect();
-            assertTrue(expression, results.hasNext());
-            QuerySolution solution = results.next();
-            assertFalse(expression, results.hasNext());
-            return solution.contains("result") ? solution.get("result").asNode() : null;
-        }
     }
 }
